@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import User from "./user.model.js";
 
 const generateToken = (user) => {
@@ -27,8 +28,11 @@ export const login = async (req, res) => {
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+    console.log(`User found: ${user.email}`);
 
-    const isMatch = await user.comparePassword(password);
+    // Explicit bcrypt comparison
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(`Password match result: ${isMatch}`);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
