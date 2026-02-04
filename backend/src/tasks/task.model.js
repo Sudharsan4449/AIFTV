@@ -13,6 +13,12 @@ const taskSchema = new mongoose.Schema(
       required: true
     },
 
+    zone: {
+      type: String,
+      required: true,
+      default: "General"
+    },
+
     location: {
       address: {
         type: String,
@@ -40,11 +46,10 @@ const taskSchema = new mongoose.Schema(
       min: 5
     },
 
-    assignedTo: {
+    assignedTo: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
+      ref: "User"
+    }],
 
     assignedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -57,9 +62,28 @@ const taskSchema = new mongoose.Schema(
       required: true
     },
 
+    proof: {
+      beforeImage: { type: String },
+      beforeImageHash: { type: String },
+      beforeEXIF: { type: Object }, // Store raw EXIF data object
+      afterImage: { type: String },
+      afterImageHash: { type: String },
+      afterImageHash: { type: String },
+      afterEXIF: { type: Object }
+    },
+
+    // AI Verification Data
+    aiConfidence: { type: Number },
+    aiAnalysis: { type: Object }, // Full Forensic Report
+
+    startedAt: { type: Date }, // Track when task work actually started
+
+    rejectionReason: { type: String },
+    remarks: { type: String },
+
     status: {
       type: String,
-      enum: ["ASSIGNED", "IN_PROGRESS", "SUBMITTED", "VERIFIED"],
+      enum: ["ASSIGNED", "IN_PROGRESS", "COMPLETED", "SUBMITTED", "VERIFIED"],
       default: "ASSIGNED"
     }
   },

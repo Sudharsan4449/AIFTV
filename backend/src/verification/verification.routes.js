@@ -1,5 +1,5 @@
 import express from "express";
-import { submitVerification } from "./verification.controller.js";
+import { submitVerification, getVerificationByTaskId } from "./verification.controller.js";
 import { authenticate, authorizeRoles } from "../middleware/jwt.middleware.js";
 
 const router = express.Router();
@@ -12,5 +12,14 @@ router.post(
   authorizeRoles("EMPLOYEE"),
   submitVerification
 );
+
+// Manager/Employee: Get Verification Details
+// GET /api/verification/:taskId
+router.get(
+  "/:taskId",
+  authenticate,
+  getVerificationByTaskId
+);
+
 
 export default router;

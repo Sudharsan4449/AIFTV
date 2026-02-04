@@ -4,9 +4,21 @@ import {
   getMyTasks,
   getManagedTasks
 } from "./task.controller.js";
+import { updateTask } from "./task.controller.js"; // Import new method
 import { authenticate, authorizeRoles } from "../middleware/jwt.middleware.js";
 
 const router = express.Router();
+
+// ... existing routes ...
+
+// Update Task (Status or Reassign)
+// PATCH /api/tasks/:taskId
+router.patch(
+  "/:taskId",
+  authenticate,
+  authorizeRoles("MANAGER", "EMPLOYEE"), // Employees can update status, Managers reassign
+  updateTask
+);
 
 // Manager creates a task
 // POST /api/tasks

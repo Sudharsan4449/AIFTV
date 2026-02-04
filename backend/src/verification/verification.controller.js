@@ -21,18 +21,12 @@ export const submitVerification = async (req, res) => {
       remarks
     } = req.body;
 
-    if (
-      !taskId ||
-      !beforeImage ||
-      !afterImage ||
-      !beforeImageHash ||
-      !afterImageHash ||
-      !beforeEXIF ||
-      !afterEXIF ||
-      cleanlinessScore == null ||
-      !decision
-    ) {
-      return res.status(400).json({ message: "Missing verification data" });
+    if (!taskId) {
+      return res.status(400).json({ message: "Task ID is required" });
+    }
+
+    if (!beforeImage || !afterImage) {
+      return res.status(400).json({ message: "Both Before and After images are required" });
     }
 
     const task = await Task.findById(taskId);
@@ -47,7 +41,8 @@ export const submitVerification = async (req, res) => {
     });
 
     if (existing) {
-      return res.status(400).json({ message: "Verification already submitted" });
+      // Idempotency: If already verified, just return success
+      return res.status(200).json({ message: "Verification already submitted", verification: existing });
     }
 
     const verification = await Verification.create({
@@ -55,17 +50,21 @@ export const submitVerification = async (req, res) => {
       taskId,
       beforeImage,
       afterImage,
-      beforeImageHash,
-      afterImageHash,
-      beforeEXIF,
-      afterEXIF,
-      cleanlinessScore,
-      decision,
-      remarks
+      beforeImageHash: beforeImageHash || "N/A",
+      afterImageHash: afterImageHash || "N/A",
+      beforeEXIF: beforeEXIF || {},
+      afterEXIF: afterEXIF || {},
+      cleanlinessScore: cleanlinessScore ?? 0,
+      decision: decision || "FLAGGED", // Default to FLAGGED if undecided
+      remarks: remarks || ""
     });
 
     // Update task status
+    task.status = decision === 'APPROVED' ? "VERIFIED" : "SUBMITTED";
+    // If auto-approved, mark VERIFIED. Else SUBMITTED for review.
+    // For now, let's stick to SUBMITTED to allow manager review.
     task.status = "SUBMITTED";
+
     await task.save();
 
     res.status(201).json({
@@ -73,7 +72,24 @@ export const submitVerification = async (req, res) => {
       verification
     });
   } catch (error) {
-    console.error("Submit Verification Error:", error);
-    res.status(500).json({ message: "Failed to submit verification" });
+    console.error("Verification Submission Error Full Details:", JSON.stringify(error, null, 2));
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// GET /api/verification/:taskId
+export const getVerificationByTaskId = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const verification = await Verification.findOne({ taskId }).populate('userId', 'name email');
+
+    if (!verification) {
+      return res.status(404).json({ message: "Verification not found for this task" });
+    }
+
+    res.status(200).json(verification);
+  } catch (error) {
+    console.error("Get Verification Error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

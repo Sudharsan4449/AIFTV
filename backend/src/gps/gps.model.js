@@ -11,7 +11,7 @@ const gpsPointSchema = new mongoose.Schema(
     taskId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Task",
-      required: true
+      required: false // Phase 2: Allow general tracking
     },
 
     latitude: {

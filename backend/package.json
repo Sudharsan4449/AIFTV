@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "backfill": "node backfill_ids.js",
+    "list": "node list_users.js"
   },
   "engines": {
     "node": ">=18"

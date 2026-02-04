@@ -24,7 +24,14 @@ router.use("/attendance", attendanceRoutes);
 // AI Verification & Decision Engine
 router.use("/verification", verificationRoutes);
 
+import uploadRoutes from "../uploads/upload.routes.js";
+
+// ...
+
 // Reports & Analytics
 router.use("/reports", reportRoutes);
+
+// File Uploads
+router.use("/uploads", uploadRoutes);
 
 export default router;

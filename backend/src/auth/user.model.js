@@ -15,6 +15,16 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
+    employeeId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows null/missing for now, until backfilled
+      trim: true
+    },
+    workZone: {
+      type: String, // e.g. "North Zone"
+      default: "Unassigned"
+    },
     password: {
       type: String,
       required: true,
@@ -28,6 +38,20 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    // Phase 2: Location Truth
+    location: {
+      latitude: { type: Number, default: 0 },
+      longitude: { type: Number, default: 0 }
+    },
+    lastLocationUpdate: {
+      type: Date,
+      default: null
+    },
+    // Phase 5: Explicit Last Location Timestamp for Offline Logic
+    lastLocationAt: {
+      type: Date,
+      default: null
     }
   },
   {
